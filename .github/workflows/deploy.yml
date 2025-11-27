@@ -1,0 +1,71 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.x'
+        cache: true
+      # Restore dependencies
+    - name: Restore Dependencies
+      run: dotnet restore --locked-mode
+    
+    # Build the project
+    - name: Build Project
+      run: dotnet build --no-restore --configuration Release
+      
+    - name: Run Tests
+      run: dotnet test --no-build --configuration Release
+
+    - name: Run Publish
+      run: dotnet publish --no-build --configuration Release
+
+    - name: Create SSH key
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_PRIVATE_KEY" > ../private.key
+        sudo chmod 600 ../private.key
+        echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      shell: bash
+      env:
+        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
+        SSH_KEY_PATH: ${{ github.workspace }}/../private.key
+
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
+    - name: SSH into server and deploy application
+      run: |
+        sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+          cd /var/www/your-app
+
+          # Set GitHub credentials using GITHUB_TOKEN
+          git config --global credential.helper store
+          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" > ~/.git-credentials
+
+          # Pull the latest code from the repository
+          git pull origin main
+
+          # Install dependencies
+          pip install -r /var/www/your-app/requirements.txt
+
+          # Restart the service
+          sudo systemctl stop your-app
+          sudo systemctl start your-app
+        EOF

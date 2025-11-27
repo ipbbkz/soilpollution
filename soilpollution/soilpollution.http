@@ -1,0 +1,6 @@
+@soilpollution_HostAddress = http://localhost:5104
+
+GET {{soilpollution_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
