@@ -34,7 +34,7 @@ jobs:
       run: dotnet test --no-build --configuration Release
 
     - name: Run Publish
-      run: dotnet publish --no-build --configuration Release
+      run: dotnet publish --no-build --configuration Release --self-contained
 
     - name: Set up SSH key
       run: |
