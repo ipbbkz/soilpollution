@@ -16,7 +16,7 @@ public class Point
     public double Latitude { get; set; }
     public double Longitude { get; set; }
 
-    public ICollection<DepthLayer> DepthLayers { get; set; }
+    public required ICollection<DepthLayer> DepthLayers { get; set; }
 }
 
 public class DepthLayer
@@ -52,6 +52,11 @@ public class Measurement
 
 public class SoilDbContext : DbContext
 {
+    public SoilDbContext(DbContextOptions<SoilDbContext> options)
+        : base(options)
+    {
+    }
+
     public DbSet<Point> Points { get; set; } = null!;
     public DbSet<DepthLayer> DepthLayers { get; set; } = null!;
     public DbSet<Measurement> Measurements { get; set; } = null!;
