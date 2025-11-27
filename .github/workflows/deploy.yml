@@ -21,6 +21,7 @@ jobs:
       with:
         dotnet-version: '10.x'
         cache: true
+        cache-dependency-path: '**/packages.lock.json'
       # Restore dependencies
     - name: Restore Dependencies
       run: dotnet restore --locked-mode
@@ -35,37 +36,22 @@ jobs:
     - name: Run Publish
       run: dotnet publish --no-build --configuration Release
 
-    - name: Create SSH key
+    - name: Set up SSH key
       run: |
-        mkdir -p ~/.ssh/
-        echo "$SSH_PRIVATE_KEY" > ../private.key
-        sudo chmod 600 ../private.key
-        echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-      shell: bash
-      env:
-        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-        SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
-        SSH_KEY_PATH: ${{ github.workspace }}/../private.key
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -t rsa ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
 
     - name: Install sshpass
       run: sudo apt-get install -y sshpass
 
-    - name: SSH into server and deploy application
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app
+        path: artifacts/publish/soilpollution/release/ # or path/to/artifact
+    
+    - name: Deploy to server
       run: |
-        sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
-          cd /var/www/your-app
-
-          # Set GitHub credentials using GITHUB_TOKEN
-          git config --global credential.helper store
-          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" > ~/.git-credentials
-
-          # Pull the latest code from the repository
-          git pull origin main
-
-          # Install dependencies
-          pip install -r /var/www/your-app/requirements.txt
-
-          # Restart the service
-          sudo systemctl stop your-app
-          sudo systemctl start your-app
-        EOF
+        rsync -avz --delete ./artifacts/publish/soilpollution/release/ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ secrets.REMOTE_PATH }}
