@@ -1,8 +1,10 @@
 namespace soilpollution;
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 public class Point
 {
@@ -50,13 +52,12 @@ public class Measurement
     public required DepthLayer DepthLayer { get; set; }
 }
 
-public class SoilDbContext : DbContext
+public class ApplicationUser : IdentityUser
 {
-    public SoilDbContext(DbContextOptions<SoilDbContext> options)
-        : base(options)
-    {
-    }
+}
 
+public class SoilDbContext(DbContextOptions<SoilDbContext> options) : IdentityDbContext(options)
+{
     public DbSet<Point> Points { get; set; } = null!;
     public DbSet<DepthLayer> DepthLayers { get; set; } = null!;
     public DbSet<Measurement> Measurements { get; set; } = null!;

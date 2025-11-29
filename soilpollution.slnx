@@ -1,3 +1,9 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+    <File Path="soilpollution.service" />
+  </Folder>
   <Project Path="soilpollution/soilpollution.csproj" />
 </Solution>

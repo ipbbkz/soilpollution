@@ -4,6 +4,12 @@
 
 Бұл бағдарлама Қазақстандағы топырақтың ластануы туралы жаңа деректерді енгізуге мүмкіндік береді.
 
+## How to add dependency
+
+```
+dotnet restore --locked-mode
+```
+
 ## How to run
 
 ```shell

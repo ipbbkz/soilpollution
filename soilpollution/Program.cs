@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using soilpollution;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
+using soilpollution.Components.Account;
+using soilpollution;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +14,33 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<SoilDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// --- Blazor Server and Razor Pages ---
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+// ---------------------------------------
+
+builder.Services.AddCascadingAuthenticationState();
+
+builder.Services.AddScoped<IdentityUserAccessor>();
+
+builder.Services.AddScoped<IdentityRedirectManager>();
+
+builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    })
+    .AddIdentityCookies();
+
+builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<SoilDbContext>()
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 var app = builder.Build();
 
@@ -28,6 +59,18 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
+// Routing, auth, and endpoint mapping required for Blazor
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Map Razor Pages and Blazor Hub
+app.MapRazorPages();
+app.MapBlazorHub();
+
+// Fallback to the server host page so Blazor routes work
+app.MapFallbackToPage("/_Host");
 
 var summaries = new[]
 {
@@ -47,6 +90,8 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.MapAdditionalIdentityEndpoints();;
 
 app.Run();
 
