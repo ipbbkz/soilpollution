@@ -4,7 +4,7 @@ using soilpollution;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using soilpollution.Components.Account;
-using soilpollution;
+using soilpollution.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +17,9 @@ builder.Services.AddDbContext<SoilDbContext>(options =>
 
 // --- Blazor Server and Razor Pages ---
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
 // ---------------------------------------
 
 builder.Services.AddCascadingAuthenticationState();
@@ -51,8 +53,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseDefaultFiles();
-app.UseStaticFiles();
+//app.UseDefaultFiles();
+app.MapStaticAssets();
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
@@ -64,9 +66,12 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseAntiforgery();
 
 // Map Razor Pages and Blazor Hub
 app.MapRazorPages();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 app.MapBlazorHub();
 
 // Fallback to the server host page so Blazor routes work
