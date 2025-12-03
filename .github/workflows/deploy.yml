@@ -55,3 +55,4 @@ jobs:
     - name: Deploy to server
       run: |
         rsync -avz --delete ./artifacts/publish/soilpollution/release/ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ secrets.REMOTE_PATH }}
+        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} 'sudo systemctl status soilpollution.service'
