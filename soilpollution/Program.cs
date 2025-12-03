@@ -53,7 +53,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-//app.UseDefaultFiles();
+app.UseDefaultFiles();
 app.MapStaticAssets();
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
