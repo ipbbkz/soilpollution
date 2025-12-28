@@ -1,0 +1,31 @@
+﻿@page "/points"
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject SoilDbContext dbContext
+<h3>Points</h3>
+
+<a class="btn btn-primary" href="/points/add">Add</a>
+
+<div class="table-responsive">
+    <QuickGrid Items="@FilteredItems" Pagination="@pagination">
+        <PropertyColumn Property="@(c => c.Id)" Sortable="true" Align="Align.Right" />
+        <PropertyColumn Property="@(c => c.Name)" Sortable="true" Align="Align.Right" />
+        <PropertyColumn Property="@(c => c.Longitude)" Sortable="true" Align="Align.Right" />
+        <PropertyColumn Property="@(c => c.Latitude)" Sortable="true" Align="Align.Right" />
+        <TemplateColumn Title="Information" Sortable="true" Align="Align.Right">
+            @context.DepthLayers.Count depth layers; @context.DepthLayers.SelectMany(dl => dl.Measurements).Count() measurements
+        </TemplateColumn>
+    </QuickGrid>
+</div>
+
+@code {
+    IQueryable<Point>? items;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 15 };
+
+    IQueryable<Point>? FilteredItems => items;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.items = dbContext.Points.Include(_ => _.DepthLayers).ThenInclude(dl => dl.Measurements);
+    }
+}
