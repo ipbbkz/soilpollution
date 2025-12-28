@@ -8,6 +8,22 @@
         "resolved": "10.0.1",
         "contentHash": "rafnWkNfJPA0nCZ5u9bFLiIhCv+aGDWBPJMejuROFMHEpsNhTdv8Cvhv+2jIH+b5485FhndbiwOQJUBMeBa6BQ=="
       },
+      "Microsoft.AspNetCore.Components.QuickGrid": {
+        "type": "Direct",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "p7+IZRNQgJg72k5uEVdceDUNbtt3j49G7PTp9lkIv2ALY6/kdzYWgp5IKBo1Vfogto4I6b6Gcz4rq4teI/YePA=="
+      },
+      "Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter": {
+        "type": "Direct",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "Sth7zVjBaaW0Qrl1sMovLMhUEwB90qNjEx96s+R2OnlVf5cEtCa4p+lRJYadFTtlI2XyAwh4NK25KLiN/A1BvA==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Components.QuickGrid": "10.0.1",
+          "Microsoft.EntityFrameworkCore": "10.0.1"
+        }
+      },
       "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": {
         "type": "Direct",
         "requested": "[10.0.1, )",

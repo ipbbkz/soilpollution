@@ -41,10 +41,21 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<SoilDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
+builder.Services.AddQuickGridEntityFrameworkAdapter();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 var app = builder.Build();
+
+//if (args.Length > 0 && (args[0] == "migrate" || args[0] == "migration" || args[0] == "migrations"))
+if (true)
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<SoilDbContext>();
+    db.Database.Migrate();
+    Console.WriteLine("Database initialized.");
+    //return;
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

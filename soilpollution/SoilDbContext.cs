@@ -56,7 +56,7 @@ public class ApplicationUser : IdentityUser
 {
 }
 
-public class SoilDbContext(DbContextOptions<SoilDbContext> options) : IdentityDbContext(options)
+public class SoilDbContext(DbContextOptions<SoilDbContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<Point> Points { get; set; } = null!;
     public DbSet<DepthLayer> DepthLayers { get; set; } = null!;
@@ -74,5 +74,7 @@ public class SoilDbContext(DbContextOptions<SoilDbContext> options) : IdentityDb
             .HasMany(d => d.Measurements)
             .WithOne(m => m.DepthLayer)
             .HasForeignKey(m => m.DepthLayerId);
+
+        base.OnModelCreating(modelBuilder);
     }
 }
